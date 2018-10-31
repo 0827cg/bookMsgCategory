@@ -1,0 +1,73 @@
+[2018-10-31 10:01:02]: 日志文件: logs\2018-10-31.log
+[2018-10-31 10:01:02]: 配置文件已经存在(conf\book.conf)
+[2018-10-31 10:01:02]: check and init config result: 1
+[2018-10-31 10:01:02]: run Do
+[2018-10-31 10:01:02]: 正在获取所有标签对应的url...
+[2018-10-31 10:01:02]: 配置文件中读取到的配置有: {
+   "html_url": "http://category.dangdang.com/cp01.54.00.00.00.00.html",
+   "c_category_label": "a",
+   "sleep_time": "5",
+   "c_category_key": "title",
+   "save_path": "output/",
+   "c_category_name": "[图形图像多媒体, 程序设计, 网络与数据通信, 数据库, 家庭与办公室用书]",
+   "p_category_name": "计算机/网络"
+}
+[2018-10-31 10:01:02]: 正在请求页面[http://category.dangdang.com/cp01.54.00.00.00.00.html]
+[2018-10-31 10:01:02]: Server: nginx/1.2.0
+Date: Wed, 31 Oct 2018 02:01:06 GMT
+Content-Type: text/html; charset=gb2312
+Transfer-Encoding: chunked
+Connection: close
+X-Powered-By: PHP/5.2.10
+Set-Cookie: __permanent_id=20181031100105944354871424429012608; expires=Thu, 29-Oct-2026 02:01:05 GMT; path=/; domain=dangdang.com
+
+
+[2018-10-31 10:01:02]: response url:[http://category.dangdang.com/cp01.54.00.00.00.00.html]
+[2018-10-31 10:01:02]: 请求成功---耗时: 0.28s
+[2018-10-31 10:01:03]: 爬取到[title=图形图像多媒体]的[a]标签如: <a href="/cp01.54.08.00.00.00.html" title="图形图像多媒体"><em></em>图形图像多媒体</a>
+[2018-10-31 10:01:03]: 爬取到[title=程序设计]的[a]标签如: <a href="/cp01.54.06.00.00.00.html" title="程序设计"><em></em>程序设计</a>
+[2018-10-31 10:01:03]: 爬取到[title=网络与数据通信]的[a]标签如: <a href="/cp01.54.07.00.00.00.html" title="网络与数据通信"><em></em>网络与数据通信</a>
+[2018-10-31 10:01:03]: 爬取到[title=数据库]的[a]标签如: <a href="/cp01.54.05.00.00.00.html" title="数据库"><em></em>数据库</a>
+[2018-10-31 10:01:04]: 爬取到[title=家庭与办公室用书]的[a]标签如: <a href="/cp01.54.13.00.00.00.html" title="家庭与办公室用书"><em></em>家庭与办公室用书</a>
+[2018-10-31 10:01:04]: []
+[2018-10-31 10:01:04]: 获取完成, 该页面[strFirstPageName=计算机/网络]中需要进行next爬取的url如: []
+[2018-10-31 10:01:04]: 准备获取当前页面[strPageName=网络与数据通信, intPageName=1]的页面数据, 此时[strUrl=http://category.dangdang.com/cp01.54.07.00.00.00.html]...
+[2018-10-31 10:01:04]: 正在请求页面[http://category.dangdang.com/cp01.54.07.00.00.00.html]
+[2018-10-31 10:01:04]: Server: nginx/1.2.0
+Date: Wed, 31 Oct 2018 02:01:07 GMT
+Content-Type: text/html; charset=gb2312
+Transfer-Encoding: chunked
+Connection: close
+X-Powered-By: PHP/5.2.10
+Set-Cookie: __permanent_id=20181031100107612326100180573353962; expires=Thu, 29-Oct-2026 02:01:07 GMT; path=/; domain=dangdang.com
+
+
+[2018-10-31 10:01:04]: response url:[http://category.dangdang.com/cp01.54.07.00.00.00.html]
+[2018-10-31 10:01:04]: 请求成功---耗时: 0.222s
+[2018-10-31 10:01:04]: 爬取到[id=component_0__0__6612]的[ul]标签如: <ul class="bigimg" id="component_0__0__6612">
+<li class="line1" ddt-pit="1" id="p23989588">
+<a class="pic" dd_name="单品图片" ddclick="act=normalResult_picture&amp;pos=23989588_0_1_p" href="http://product.dangdang.com/23989588.html" name="itemlist-picture" target="_blank" title=" TCP/IP详解 卷1：协议（原书第2版）"><img alt=" TCP/IP详解 卷1：协议（原书第2版）" src="http://img3m8.ddimg.cn/7/9/23989588-1_b_6.jpg"/></a><p class="name" name="title"><a dd_name="单品标题" 
+
+[2018-10-31 10:19:28]: 爬取到[name=P_cbs]的[a]标签如: <a dd_name="单品出版社" href="http://search.dangdang.com/?key=&amp;key3=%BB%FA%D0%B5%B9%A4%D2%B5%B3%F6%B0%E6%C9%E7&amp;medium=01&amp;category_path=01.00.00.00.00.00" name="P_cbs" title="机械工业出版社">机械工业出版社</a>
+[2018-10-31 10:19:28]: 爬取到[class=search_book_author]的[p]标签如: <p class="search_book_author"><span><a dd_name="单品作者" href="http://search.dangdang.com/?key2=胡仁喜&amp;medium=01&amp;category_path=01.00.00.00.00.00" name="itemlist-author" title="胡仁喜">胡仁喜</a></span><span> /2017-03-13</span><span>  /<a dd_name="单品出版社" href="http://search.dangdang.com/?key=&amp;key3=%BB%FA%D0%B5%B9%A4%D2%B5%B3%F6%B0%E6%C9%E7&amp;medium=01&amp;category_path=01.00.00.00.00.00" name="P_cbs" title="机械工业出版社">机械工业出版社</a></span><div class="shop_button"><p class="bottom_p"><a class="search_btn_cart " dd_name="加入购物车" ddclick="act=normalResult_addToCart&amp;pos=1042903479_59_1_p" href="javascript:AddToShoppingCart(1042903479)" name="Buy">加入购物车</a><a class="search_btn_collect" dd_name="加入收藏" ddclick="act=normalResult_favor&amp;pos=1042903479_59_1_p" href="javascript:void(0);" id="lcase1042903479" name="Sc">收藏</a></p></div> </p>
+[2018-10-31 10:19:28]: {'bookHref': 'http://product.dangdang.com/1042903479.html', 'bookPublishTime': ' 2017-03-13', 'bookPublishHouse': '机械工业出版社', 'commentNum': '0条评论', 'bookAuthor': '胡仁喜', 'bookPicUrl': 'http://img3m9.ddimg.cn/57/19/1042903479-1_b_1.jpg', 'disCount': '\xa0(9.93折) ', 'prePrice': '¥137.00', 'bookName': ' UG NX10.0中文版快速入门实例教程 ugnx10自学制图书籍+Matlab R2016a从入门到精通 ug教材', 'commentLevel': '0%', 'nowPrice': '¥136.00'}
+[2018-10-31 10:19:28]: 此页面[strUrl=http://category.dangdang.com/pg100-cp01.54.06.00.00.00.html]有3本书的信息未爬全
+[2018-10-31 10:19:28]: 此页面[strUrl=http://category.dangdang.com/pg100-cp01.54.06.00.00.00.html]的图书信息抓取完成1.356s
+[2018-10-31 10:19:28]: 配置文件中读取到的配置有: {
+   "html_url": "http://category.dangdang.com/cp01.54.00.00.00.00.html",
+   "c_category_label": "a",
+   "sleep_time": "5",
+   "c_category_key": "title",
+   "save_path": "output/",
+   "c_category_name": "[图形图像多媒体, 程序设计, 网络与数据通信, 数据库, 家庭与办公室用书]",
+   "p_category_name": "计算机/网络"
+}
+[2018-10-31 10:19:28]: 当前页面[strPageName=程序设计, intPageNum=100, strUrl=http://category.dangdang.com/pg100-cp01.54.06.00.00.00.html]写入完成
+[2018-10-31 10:19:28]: 保存文件路径为: output/计算机网络\程序设计\100.json
+[2018-10-31 10:19:28]: [strPageName=程序设计]的第100页信息已爬取完成
+[2018-10-31 10:19:28]: 存在3本图书信息未完全获取
+[2018-10-31 10:19:28]: 爬取到[title=下一页]的[a]标签如: None
+[2018-10-31 10:19:28]: 此页面未发现下一页[strUrl=http://category.dangdang.com/pg100-cp01.54.06.00.00.00.html]
+[2018-10-31 10:19:28]: [strPageName=程序设计]的页面此时已无下一页,[intPageNum=100]
+[2018-10-31 10:19:28]: [strPageName=程序设计]的程序设计张页面信息抓取完成, ---耗时: 2.189s(0.0365min)
+[2018-10-31 10:19:28]: [程序只需完成, ---总耗时: 1105.751s(18.4292min)
