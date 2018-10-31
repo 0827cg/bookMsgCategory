@@ -37,7 +37,10 @@ class OperatorMsg(BookMsgPro):
 
         for strUrl, strPageName in dictPageUrl.items():
 
-            self.loopNextAndGetMsg(intPageNum, strUrl, strPageName)
+            if strUrl != 'none':
+                self.loopNextAndGetMsg(intPageNum, strUrl, strPageName)
+            else:
+                self.logUtilObj.writerLog('为找到[strPageName=' + strPageName + ',intPageNum=' + str(intPageNum) + ']页面的url')
 
             # strNextUrl = self.operatePageObj.getNextPageUrl(strUrl)
             # if strNextUrl is not None:

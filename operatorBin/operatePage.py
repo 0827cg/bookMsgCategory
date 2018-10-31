@@ -62,7 +62,12 @@ class OperatePage(BookMsgPro):
 
             tagLabel = self.htmlSpiderObj.getLabelByKeyValueOnData(strHtml, strCategoryLabelName, strCategoryKeyName, itemCategoryName)
 
-            strFullUrl = self.strBaseUrl + tagLabel['href']
+            if tagLabel is not None:
+                strFullUrl = self.strBaseUrl + tagLabel['href']
+            else:
+                strFullUrl = 'none'
+                self.logUtilObj.writerLog('未从页面中爬取到[' + strCategoryKeyName + '=' +
+                                          itemCategoryName + ']的' + strCategoryLabelName + '标签内容, strFullUrl=' + strFullUrl)
             # listCategoryHref.append(self.strBaseUrl + tagLabel['href'])
 
             dictCategoryHrefName[strFullUrl] = itemCategoryName
