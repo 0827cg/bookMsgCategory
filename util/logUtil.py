@@ -25,8 +25,7 @@ class LogUtil:
 
         self.strLogDir = strLogDir
 
-        strToday = str(datetime.date.today())
-        self.strLogFileName = self.strLogDir + strToday + ".log"
+        # strLogFileName = self.getLogFileName()
 
         self.checkAndCreateDir(self.strLogDir)
 
@@ -41,10 +40,10 @@ class LogUtil:
         '''
 
         if whetherAdd & True:
-            with open(self.strLogFileName, 'a', encoding='utf-8') as fileObj:
+            with open(self.getLogFileName(), 'a', encoding='utf-8') as fileObj:
                 fileObj.write(self.getDateTimeForLog() + strContent + '\n')
         else:
-            with open(self.strLogFileName, 'a', encoding='utf-8') as fileObj:
+            with open(self.getLogFileName(), 'a', encoding='utf-8') as fileObj:
                 fileObj.write(self.getDateTimeForLog() + strContent)
 
         print(self.getDateTimeForLog() + strContent)
@@ -59,7 +58,7 @@ class LogUtil:
         :return: 返回迭代器
         '''
 
-        with open(self.strLogFileName, 'rb') as fileObj:
+        with open(self.getLogFileName(), 'rb') as fileObj:
             pos = fileObj.seek(0, os.SEEK_END)
             # print(pos)
 
@@ -87,6 +86,18 @@ class LogUtil:
                 pass
 
 
+    def getLogFileName(self):
+
+        '''
+        describe: 获取日志文件名加路径名
+        :return:
+        '''
+
+        strToday = str(datetime.date.today())
+
+        return self.strLogDir + strToday + ".log"
+
+
     def checkAndCreateDir(self, strDirName):
 
         '''
@@ -100,7 +111,7 @@ class LogUtil:
             self.writerLog(strDirName + "文件夹不存在,已自动创建")
             self.writerLog("=================")
         else:
-            self.writerLog('日志文件: ' + self.strLogFileName)
+            self.writerLog('日志文件: ' + self.getLogFileName())
 
     def getDateTimeForLog(self):
 

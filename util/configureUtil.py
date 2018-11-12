@@ -123,7 +123,7 @@ class ConfigureUtil:
         '''
         describe: 读取配置文件内容, 注释了不读取，值为空会读取, 读取写入的key名字全部小写
         :param configParserObj: configparser的对象
-        :return: 返回一个字典
+        :return: 返回一个字典, dict类型
         '''
 
         dictConfMsg = {}

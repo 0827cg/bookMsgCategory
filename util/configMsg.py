@@ -31,7 +31,7 @@ class ConfigMsg:
     strChiCategoryLabelNameValue = 'span'
     strChiCategoryKeyNameValue = 'title'
     strChiCateGoryNameValue = "[图形图像多媒体, 程序设计, 网络与数据通信, 数据库, 家庭与办公室用书]"
-    strSpiderSleepTimeValue = '5'
+    strSpiderSleepTimeValue = '3'
     strSaveFilePathValue = 'output' + os.sep
 
 

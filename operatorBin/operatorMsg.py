@@ -30,27 +30,37 @@ class OperatorMsg(BookMsgPro):
         intIndexTime = time.time()
         self.logUtilObj.writerLog('run Do')
 
+        self.dictConfig = self.configureUtilObj.getConfig(self.configParserObj)
+        self.intSleep = int(self.dictConfig.get(self.configureUtilObj.configMsgObj.strSpiderSleepTimeKey))
+
         self.operatePageObj = OperatePage()
         dictPageUrl = self.operatePageObj.getHrefPage()
 
-        intPageNum = 1
+        if dictPageUrl is not None:
 
-        for strUrl, strPageName in dictPageUrl.items():
+            intPageNum = 1
 
-            if strUrl != 'none':
-                self.loopNextAndGetMsg(intPageNum, strUrl, strPageName)
-            else:
-                self.logUtilObj.writerLog('为找到[strPageName=' + strPageName + ',intPageNum=' + str(intPageNum) + ']页面的url')
+            for strUrl, strPageName in dictPageUrl.items():
 
-            # strNextUrl = self.operatePageObj.getNextPageUrl(strUrl)
-            # if strNextUrl is not None:
-            #
-            #     tagLabel = self.operatePageObj.getValueLabelForUrl(strNextUrl)
-            #     # self.logUtilObj.writerLog(str(tagLabel))
-            #     # xmlSpiderObj = XmlSpider()
-            #     # xmlSpiderObj.getValueMessageByLabel(tagLabel)
-            #
-            #     dictResult = self.operatePageObj.getValueMessageByLabel(strNextUrl, tagLabel)
+                if strUrl != 'none':
+                    resultIndex = self.loopNextAndGetMsg(intPageNum, strUrl, strPageName)
+                    if resultIndex is None:
+                        continue
+                else:
+                    self.logUtilObj.writerLog('为找到[strPageName=' + strPageName + ',intPageNum=' + str(intPageNum) + ']页面的url')
+
+                # strNextUrl = self.operatePageObj.getNextPageUrl(strUrl)
+                # if strNextUrl is not None:
+                #
+                #     tagLabel = self.operatePageObj.getValueLabelForUrl(strNextUrl)
+                #     # self.logUtilObj.writerLog(str(tagLabel))
+                #     # xmlSpiderObj = XmlSpider()
+                #     # xmlSpiderObj.getValueMessageByLabel(tagLabel)
+                #
+                #     dictResult = self.operatePageObj.getValueMessageByLabel(strNextUrl, tagLabel)
+        else:
+            self.logUtilObj.writerLog('各页面对应的url为None')
+
         intNowTime = time.time()
         strMinusSec = str(round(intNowTime - intIndexTime, 4)) + 's'
         strMinusMin = str(round((intNowTime - intIndexTime) / 60, 4)) + 'min'
@@ -71,40 +81,48 @@ class OperatorMsg(BookMsgPro):
         self.logUtilObj.writerLog('准备获取当前页面[strPageName=' + strPageName + ', intPageName=' +
                                   str(intPageNum) + ']的页面数据, 此时[strUrl=' + strUrl + ']...')
 
-        # 获取也面内容
+        # 获取页面内容
         strHtmlData = HtmlSpider().getHtmlStrMsg(strUrl)
 
-        # 获取当前页面中存在book信息的标签块
-        tagLabel = self.operatePageObj.getValueLabelByData(strHtmlData)
+        if strHtmlData is not None:
 
-        # 从标签块中遍历图书, 获取图书信息
-        dictResult = self.operatePageObj.getValueMessageByLabel(strUrl, tagLabel)
-        # listBookMsg = dictResult['bookMsg']
+            # 获取当前页面中存在book信息的标签块
+            tagLabel = self.operatePageObj.getValueLabelByData(strHtmlData)
 
-        # 将图书信息写入到文件
-        intResult = self.saveBookMsg(intPageNum, strPageName, strUrl, dictResult)
-        if intResult != 1:
-            self.logUtilObj.writerLog('保存图书信息出错')
+            # 从标签块中遍历图书, 获取图书信息
+            dictResult = self.operatePageObj.getValueMessageByLabel(strUrl, tagLabel, self.intSleep)
+            # listBookMsg = dictResult['bookMsg']
+
+            # 将图书信息写入到文件
+            intResult = self.saveBookMsg(intPageNum, strPageName, strUrl, dictResult)
+            if intResult != 1:
+                self.logUtilObj.writerLog('保存图书信息出错')
 
 
-        intNoFullBookNum = int(dictResult['intNoFullBook'])
+            intNoFullBookNum = int(dictResult['intNoFullBook'])
 
-        self.logUtilObj.writerLog('[strPageName=' + strPageName + ']的第' + str(intPageNum) + '页信息已爬取完成')
-        self.logUtilObj.writerLog('存在' + str(intNoFullBookNum) + '本图书信息未完全获取')
+            self.logUtilObj.writerLog('[strPageName=' + strPageName + ']的第' + str(intPageNum) + '页信息已爬取完成')
+            self.logUtilObj.writerLog('存在' + str(intNoFullBookNum) + '本图书信息未完全获取')
 
-        # 爬取完当前页面后, 尝试获取当前页面的下一页url
-        strNextUrl = self.operatePageObj.getNextPageByData(strHtmlData, strUrl)
-        if strNextUrl is None:
+            # 爬取完当前页面后, 尝试获取当前页面的下一页url
+            strNextUrl = self.operatePageObj.getNextPageByData(strHtmlData, strUrl)
+            if strNextUrl is None:
 
-            self.logUtilObj.writerLog('[strPageName=' + strPageName +
-                                      ']的页面此时已无下一页,[intPageNum=' + str(intPageNum) + ']')
-            intNowTime = time.time()
-            strMinusSec = str(round(intNowTime - intIndexTime, 4)) + 's'
-            strMinusMin = str(round((intNowTime - intIndexTime) / 60, 4)) + 'min'
-            self.logUtilObj.writerLog('[strPageName=' + strPageName + ']的' + str(intPageNum) +
-                                      '张页面信息抓取完成, ---耗时: ' + strMinusSec + '(' + strMinusMin + ')')
+                self.logUtilObj.writerLog('[strPageName=' + strPageName +
+                                          ']的页面此时已无下一页,[intPageNum=' + str(intPageNum) + ']')
+                intNowTime = time.time()
+                strMinusSec = str(round(intNowTime - intIndexTime, 4)) + 's'
+                strMinusMin = str(round((intNowTime - intIndexTime) / 60, 4)) + 'min'
+                self.logUtilObj.writerLog('[strPageName=' + strPageName + ']的' + str(intPageNum) +
+                                          '张页面信息抓取完成, ---耗时: ' + strMinusSec + '(' + strMinusMin + ')')
+            else:
+                self.loopNextAndGetMsg(intPageNum + 1, strNextUrl, strPageName)
+                return True
         else:
-            self.loopNextAndGetMsg(intPageNum + 1, strNextUrl, strPageName)
+            self.logUtilObj.writerLog('当前页面[strPageName=' + strPageName + ', intPageName=' +
+                                      str(intPageNum) + ']的页面数据为None, 此时[strUrl=' + strUrl + ']...')
+
+            return None
 
 
     def saveBookMsg(self, intPageNum, strPageName, strUrl, dictResult):
@@ -122,10 +140,10 @@ class OperatorMsg(BookMsgPro):
 
         try:
 
-            dictConfig = self.configureUtilObj.getConfig(self.configParserObj)
+            # dictConfig = self.configureUtilObj.getConfig(self.configParserObj)
 
-            strRootPath = dictConfig.get(self.configureUtilObj.configMsgObj.strSaveFilePathKey)
-            strParCateGoryName = dictConfig.get(self.configureUtilObj.configMsgObj.strParCateGoryNameKey)
+            strRootPath = self.dictConfig.get(self.configureUtilObj.configMsgObj.strSaveFilePathKey)
+            strParCateGoryName = self.dictConfig.get(self.configureUtilObj.configMsgObj.strParCateGoryNameKey)
 
             # 替换个别字符
             strNextDirName = StringUtil.replaceAllChar(strParCateGoryName)

@@ -19,23 +19,31 @@ class HtmlSpider(BookMsgPro):
         '''
         describe: 请求url, 获取响应内容
         :param strUrl: 需要请求的url
-        :return: 返回一个httpResponse类型的数据
+        :return: 返回一个httpResponse类型的数据, 请求出错返回None
         '''
 
         self.logUtilObj.writerLog('正在请求页面[' + strUrl + ']')
         intIndexTime = time.time()
-        httpResponseData = urllib.request.urlopen(strUrl)
 
-        intCode = httpResponseData.getcode()
-
-        self.logUtilObj.writerLog(str(httpResponseData.info()))
-        self.logUtilObj.writerLog('response url:[' + httpResponseData.geturl() + ']')
-
-        if intCode == 200:
-            self.logUtilObj.writerLog('请求成功---耗时: ' + str(round(time.time() - intIndexTime, 4)) + 's')
-        else:
-            self.logUtilObj.writerLog('请求出错[code=' + str(intCode) + ']--耗时: '+
+        httpResponseData = None
+        try:
+            httpResponseData = urllib.request.urlopen(strUrl)
+        except Exception as error:
+            self.logUtilObj.writerLog('请求出错[error=' + str(error) + ']--耗时: ' +
                                       str(round(time.time() - intIndexTime, 4)) + 's')
+        else:
+
+            intCode = httpResponseData.getcode()
+
+            self.logUtilObj.writerLog(str(httpResponseData.info()))
+            self.logUtilObj.writerLog('response url:[' + httpResponseData.geturl() + ']')
+
+            if intCode == 200:
+                self.logUtilObj.writerLog('请求成功---耗时: ' + str(round(time.time() - intIndexTime, 4)) + 's')
+            else:
+                httpResponseData = None
+                self.logUtilObj.writerLog('请求出错[code=' + str(intCode) + ']--耗时: '+
+                                          str(round(time.time() - intIndexTime, 4)) + 's')
 
         return httpResponseData
 
@@ -45,32 +53,47 @@ class HtmlSpider(BookMsgPro):
         '''
         describe: 根据url获取页面数据,
         :param strUrl: 需要获取的页面的url
-        :return: 返回页面数据, 为bytes类型
+        :return: 返回页面数据, 为bytes类型, 如果请求结果为None, 则返回页面数据为None
         '''
 
         httpResponseData = self.getHtmlHttpReponse(strUrl)
 
-        # 读取响应体
-        bytesData = httpResponseData.read()
+        if httpResponseData is not None:
 
-        httpResponseData.close()
+            # 读取响应体
+            bytesData = httpResponseData.read()
+
+            httpResponseData.close()
+        else:
+            self.logUtilObj.writerLog('请求页面结果数据为None')
+            bytesData = None
         return bytesData
 
 
     def getHtmlStrMsg(self, strUrl):
 
         '''
-        describe: 根据url来获取页面的源代码内容, 已按页面编码来解码
+        describe: 根据url来获取页面的源代码内容, 已按页面编码来解码, 如为获取到页面编码, 则默认使用utf-8编码
         :param strUrl: 需要获取的页面的url
-        :return: 返回页面数据, 为str类型
+        :return: 返回页面数据, 为str类型, 如果请求出错, 则页面数据返回None
         '''
 
         httpResponseData = self.getHtmlHttpReponse(strUrl)
-        strCoding = httpResponseData.headers.get_content_charset()
-        bytesData = httpResponseData.read()
-        strHtml = bytesData.decode(strCoding, 'ignore')
 
-        httpResponseData.close()
+        if httpResponseData is not None:
+            strCoding = httpResponseData.headers.get_content_charset()
+            bytesData = httpResponseData.read()
+
+            if strCoding is not None:
+                pass
+            else:
+                self.logUtilObj.writerLog('未获取到页面编码, 执行默认设置为utf-8')
+                strCoding = 'utf-8'
+            strHtml = bytesData.decode(strCoding, 'ignore')
+
+            httpResponseData.close()
+        else:
+            strHtml = None
         # print(httpResponseData.closed)
         return strHtml
 
@@ -81,12 +104,17 @@ class HtmlSpider(BookMsgPro):
         describe: 获取div标签, 根据div标签中的class属性值来在规定页面获取
         :param strUrl: 页面的url
         :param strValue: div标签中的class属性的值
-        :return: 返回存放该标签的ResultSet类型数据
+        :return: 返回存放该标签的ResultSet类型数据, 如果请求出错, 则页面数据返回None
         '''
 
         bytesData = self.getHtmlMsg(strUrl)
-        beautifulObj = BeautifulSoup(bytesData, "html.parser")
-        resultSetLabel = beautifulObj.findAll('div', {'class': strValue})
+
+        if bytesData is not None:
+            beautifulObj = BeautifulSoup(bytesData, "html.parser")
+            resultSetLabel = beautifulObj.findAll('div', {'class': strValue})
+        else:
+            self.logUtilObj.writerLog('请求的页面[strUrl=' + strUrl + ']数据为None')
+            resultSetLabel = None
 
         return resultSetLabel
 
@@ -99,11 +127,14 @@ class HtmlSpider(BookMsgPro):
         :return: 返回存放该标签的ResultSet类型数据
         '''
 
-        beautifulObj = BeautifulSoup(data, 'html.parser')
-        resultSetLabel = beautifulObj.find_all('div', class_=strValue)
+        if data is not None:
+            beautifulObj = BeautifulSoup(data, 'html.parser')
+            resultSetLabel = beautifulObj.find_all('div', class_=strValue)
 
-        self.logUtilObj.writerLog('爬取到[div]的标签如: ' + str(resultSetLabel))
-
+            self.logUtilObj.writerLog('爬取到[div]的标签如: ' + str(resultSetLabel))
+        else:
+            self.logUtilObj.writerLog('传入的[data=None], 结果为None')
+            resultSetLabel = None
         return resultSetLabel
 
     def getLabelByText(self, strUrl, strLabelName, strText):
@@ -117,10 +148,15 @@ class HtmlSpider(BookMsgPro):
         '''
 
         bytesData = self.getHtmlMsg(strUrl)
-        beautifulObj = BeautifulSoup(bytesData, "html.parser")
-        resultSetLabel = beautifulObj.find_all(strLabelName, text=strText)
 
-        self.logUtilObj.writerLog('爬取[text=' + strText + ']的[' + strLabelName + ']标签如: ' + str(resultSetLabel))
+        if bytesData is not None:
+            beautifulObj = BeautifulSoup(bytesData, "html.parser")
+            resultSetLabel = beautifulObj.find_all(strLabelName, text=strText)
+
+            self.logUtilObj.writerLog('爬取[text=' + strText + ']的[' + strLabelName + ']标签如: ' + str(resultSetLabel))
+        else:
+            self.logUtilObj.writerLog('请求的页面[strUtl=' + strUrl + ']数据为None, 结果为空')
+            resultSetLabel = None
 
         return resultSetLabel
 
@@ -134,12 +170,15 @@ class HtmlSpider(BookMsgPro):
         :param strText: 需要获取的标签的内容值
         :return: 返回一个存放标签的ResultSet类型数据
         '''
+        if data is not None:
+            beautifulObj = BeautifulSoup(data, "html.parser")
+            resultSetLabel = beautifulObj.find_all(strLabelName, text=strText)
 
-        beautifulObj = BeautifulSoup(data, "html.parser")
-        resultSetLabel = beautifulObj.find_all(strLabelName, text=strText)
+            self.logUtilObj.writerLog('爬取到[text=' + strText + ']的[' + strLabelName + ']标签如: ' + str(resultSetLabel))
 
-        self.logUtilObj.writerLog('爬取到[text=' + strText + ']的[' + strLabelName + ']标签如: ' + str(resultSetLabel))
-
+        else:
+            self.logUtilObj.writerLog('传入的[data=None], 结果为None')
+            resultSetLabel = None
         return resultSetLabel
 
     def getLabelByKeyValueOnData(self, data, strLabelName, strKey, strValue):
@@ -152,12 +191,15 @@ class HtmlSpider(BookMsgPro):
         :param strValue: 需要获取的标签的属性名的值
         :return: 返回一个bs4.element.Tag类型的数据
         '''
+        if data is not None:
+            beautifulObj = BeautifulSoup(data, "html.parser")
+            tagLabel = beautifulObj.find(strLabelName, {strKey: strValue})
 
-        beautifulObj = BeautifulSoup(data, "html.parser")
-        tagLabel = beautifulObj.find(strLabelName, {strKey: strValue})
-
-        self.logUtilObj.writerLog('爬取到[' + strKey + '=' + strValue + ']的[' +
-                                  strLabelName + ']标签如: ' + str(tagLabel))
+            self.logUtilObj.writerLog('爬取到[' + strKey + '=' + strValue + ']的[' +
+                                      strLabelName + ']标签如: ' + str(tagLabel))
+        else:
+            self.logUtilObj.writerLog('传入的[data=None], 结果为None')
+            tagLabel = None
 
         return tagLabel
 
@@ -173,11 +215,16 @@ class HtmlSpider(BookMsgPro):
         :return: 返回一个bs4.element.Tag类型的数据
         '''
 
-        beautifulObj = BeautifulSoup(data, "html.parser")
-        resultSetLabel = beautifulObj.find_previous_siblings(strLabelName, {strKey: strValue})
+        if data is not None:
+            beautifulObj = BeautifulSoup(data, "html.parser")
+            resultSetLabel = beautifulObj.find_previous_siblings(strLabelName, {strKey: strValue})
 
-        self.logUtilObj.writerLog('爬取到[' + strKey + '=' + strValue + ']的[' +
-                                  strLabelName + ']标签如: ' + str(resultSetLabel))
+            self.logUtilObj.writerLog('爬取到[' + strKey + '=' + strValue + ']的[' +
+                                      strLabelName + ']标签如: ' + str(resultSetLabel))
+
+        else:
+            self.logUtilObj.writerLog('传入的[data=None], 结果为None')
+            resultSetLabel = None
 
         return resultSetLabel
 
@@ -192,10 +239,15 @@ class HtmlSpider(BookMsgPro):
         :return: 返回一个存放标签的resultSet类型数据
         '''
 
-        beautifulObj = BeautifulSoup(data, "html.parser")
-        resultSetLabel = beautifulObj.find_all(strLabelName, kwargs)
+        if data is not None:
 
-        self.logUtilObj.writerLog('爬取到[kwargs=' + str(kwargs) + ']的[' + strLabelName + ']标签如: ' + str(resultSetLabel))
+            beautifulObj = BeautifulSoup(data, "html.parser")
+            resultSetLabel = beautifulObj.find_all(strLabelName, kwargs)
+
+            self.logUtilObj.writerLog('爬取到[kwargs=' + str(kwargs) + ']的[' + strLabelName + ']标签如: ' + str(resultSetLabel))
+        else:
+            self.logUtilObj.writerLog('传入的[data=None], 结果为None')
+            resultSetLabel = None
 
         return resultSetLabel
 
@@ -235,18 +287,23 @@ class HtmlSpider(BookMsgPro):
         :return: 返回标签中的该属性的值, 为str类型数据
         '''
 
-        self.logUtilObj.writerLog('正在从页面内容中解析爬取[strText=' + strText + ']的标签strKey=' + strKey + '的值....')
+        if data is not None:
+            self.logUtilObj.writerLog('正在从页面内容中解析爬取[strText=' + strText + ']的标签strKey=' + strKey + '的值....')
 
-        intIndexTime = time.time()
+            intIndexTime = time.time()
 
-        strValue = ''
-        resultSetLabel = self.getLabelByTextOnData(data, strLabelName, strText)
+            strValue = ''
+            resultSetLabel = self.getLabelByTextOnData(data, strLabelName, strText)
 
-        for Tagitem in resultSetLabel:
-            strValue = Tagitem.get(strKey)
+            for Tagitem in resultSetLabel:
+                strValue = Tagitem.get(strKey)
 
-        self.logUtilObj.writerLog('爬取完成,[' + strKey + ']的值为' + strValue +
-                                  '---耗时: ' + str(round(time.time() - intIndexTime, 4)) + 's')
+            self.logUtilObj.writerLog('爬取完成,[' + strKey + ']的值为' + strValue +
+                                      '---耗时: ' + str(round(time.time() - intIndexTime, 4)) + 's')
+        else:
+            self.logUtilObj.writerLog('传入的[data=None], 结果为None')
+            strValue = None
+
         return strValue
 
 

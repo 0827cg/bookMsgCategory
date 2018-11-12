@@ -28,7 +28,7 @@ class OperatePage(BookMsgPro):
     def getHrefPage(self):
 
         '''
-        describe: 获取各个标签对应的url
+        describe: 获取各个图书标签对应的url
         :return: 返回一个list类型的数据, 其元素为标签对应的连接
         '''
 
@@ -39,42 +39,43 @@ class OperatePage(BookMsgPro):
         strUrl = dictConfig.get(self.configureUtilObj.configMsgObj.strHtmlUrlKey)
         parseResultUrl = urllib.parse.urlparse(strUrl)
 
-        # print(type(parseResultUrl))
-        # print(str(parseResultUrl))
-        # print(parseResultUrl.netloc)
-        # print(parseResultUrl.scheme)
         self.strBaseUrl = parseResultUrl.scheme + '://' + parseResultUrl.netloc
-        # strHostName = parseResultUrl.hostname
-        # bytesData = htmlSpiderObj.getHtmlMsg(strUrl)
+
         strHtml = self.htmlSpiderObj.getHtmlStrMsg(strUrl)
 
-        strCategoryLabelName = dictConfig.get(self.configureUtilObj.configMsgObj.strChiCategoryLabelNameKey)
-        strCategoryKeyName = dictConfig.get(self.configureUtilObj.configMsgObj.strChiCategoryKeyNameKey)
-        strCategoryName = dictConfig.get(self.configureUtilObj.configMsgObj.strChiCateGoryNameKey)
+        if strHtml is not None:
 
-        listCategoryName = strCategoryName[1:-1].split(', ')
+            strCategoryLabelName = dictConfig.get(self.configureUtilObj.configMsgObj.strChiCategoryLabelNameKey)
+            strCategoryKeyName = dictConfig.get(self.configureUtilObj.configMsgObj.strChiCategoryKeyNameKey)
+            strCategoryName = dictConfig.get(self.configureUtilObj.configMsgObj.strChiCateGoryNameKey)
 
-        listCategoryHref = []
+            listCategoryName = strCategoryName[1:-1].split(', ')
 
-        dictCategoryHrefName = {}
+            listCategoryHref = []
 
-        for itemCategoryName in listCategoryName:
+            dictCategoryHrefName = {}
 
-            tagLabel = self.htmlSpiderObj.getLabelByKeyValueOnData(strHtml, strCategoryLabelName, strCategoryKeyName, itemCategoryName)
+            for itemCategoryName in listCategoryName:
 
-            if tagLabel is not None:
-                strFullUrl = self.strBaseUrl + tagLabel['href']
-            else:
-                strFullUrl = 'none'
-                self.logUtilObj.writerLog('未从页面中爬取到[' + strCategoryKeyName + '=' +
-                                          itemCategoryName + ']的' + strCategoryLabelName + '标签内容, strFullUrl=' + strFullUrl)
-            # listCategoryHref.append(self.strBaseUrl + tagLabel['href'])
+                tagLabel = self.htmlSpiderObj.getLabelByKeyValueOnData(strHtml, strCategoryLabelName, strCategoryKeyName, itemCategoryName)
 
-            dictCategoryHrefName[strFullUrl] = itemCategoryName
+                if tagLabel is not None:
+                    strFullUrl = self.strBaseUrl + tagLabel['href']
+                else:
+                    strFullUrl = 'none'
+                    self.logUtilObj.writerLog('未从页面中爬取到[' + strCategoryKeyName + '=' +
+                                              itemCategoryName + ']的' + strCategoryLabelName + '标签内容, strFullUrl=' + strFullUrl)
+                # listCategoryHref.append(self.strBaseUrl + tagLabel['href'])
 
-        self.logUtilObj.writerLog(str(listCategoryHref))
+                dictCategoryHrefName[strFullUrl] = itemCategoryName
 
-        self.logUtilObj.writerLog('获取完成, 该页面[strFirstPageName=' + strFirstPageName + ']中需要进行next爬取的url如: ' + str(listCategoryHref))
+            self.logUtilObj.writerLog(str(listCategoryHref))
+
+            self.logUtilObj.writerLog('获取完成, 该页面[strFirstPageName=' + strFirstPageName + ']中需要进行next爬取的url如: ' + str(listCategoryHref))
+
+        else:
+            self.logUtilObj.writerLog('页面结果为None')
+            dictCategoryHrefName = None
 
         return dictCategoryHrefName
 
@@ -153,7 +154,7 @@ class OperatePage(BookMsgPro):
         return tagLabel
 
 
-    def getValueMessageByLabel(self, strUrl, tagLabel):
+    def getValueMessageByLabel(self, strUrl, tagLabel, intSleep):
 
         '''
         describe: 获取tabLabel标签块中的书籍数据
@@ -276,6 +277,20 @@ class OperatePage(BookMsgPro):
                     singleBookMsg['bookPublishTime'] = 'none'
                     intResult = -1
 
+                # 图书isbn码
+                self.logUtilObj.writerLog('图书详情页面strUrl=' + singleBookMsg['bookHref'])
+                if(singleBookMsg['bookHref'] != 'none'):
+
+                    singleBookMsg['isbnCode'] = self.getBookCode(singleBookMsg['bookHref'], singleBookMsg['bookName'])
+
+                    self.logUtilObj.writerLog('程序将休眠' + str(intSleep) + '秒...')
+                    time.sleep(intSleep)
+
+                else:
+                    self.logUtilObj.writerLog('strUrl=none, isbn码则默认为none')
+                    singleBookMsg['isbnCode'] = 'none'
+                    intResult = -1
+
                 self.logUtilObj.writerLog(str(singleBookMsg))
                 listBookMsg.append(singleBookMsg)
 
@@ -291,6 +306,39 @@ class OperatePage(BookMsgPro):
         self.logUtilObj.writerLog('此页面[strUrl=' + strUrl + ']的图书信息抓取完成' + str(round(time.time() - intIndexTime, 4)) + 's')
 
         return dictResult
+
+
+    def getBookCode(self, strUrl, strBookName):
+
+        '''
+        describe: 获取图书isbn码
+        :param strUrl: 图书详情也的url, str类型
+        :return: 图书编码 ,str类型
+        '''
+
+        strHtml = self.htmlSpiderObj.getHtmlStrMsg(strUrl)
+
+        if strHtml is not None:
+            tagLabel = self.htmlSpiderObj.getLabelByKeyValueOnData(strHtml, 'ul', 'class', 'key clearfix')
+            if tagLabel is not None:
+                strCodeContent = self.removeNullItem(tagLabel.contents)[4].get_text()
+
+                listContent = strCodeContent.split('：')
+
+                if len(listContent) > 1:
+                    strCode = listContent[1]
+                else:
+                    strCode = strCodeContent
+            else:
+                strCode = 'none'
+
+            self.logUtilObj.writerLog('图书[strBookName=' + strBookName + ',strUrl=' + strUrl +
+                                      ']isbn码获取完成[strCode=' + strCode + ']')
+        else:
+            self.logUtilObj.writerLog('页面数据结果为None, strCode将默认设置为none')
+            strCode = 'none'
+        return strCode
+
 
 
 
